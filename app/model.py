@@ -59,6 +59,7 @@ class MetinBloku:
         self.hiza = hiza
         self.dy = 0.0
         self.kirli = False
+        self.tasindi = False
 
         self.ilk_kutular: list[tuple[float, float, float, float]] = []
         self._duzen: list[Satir] | None = None
@@ -273,6 +274,40 @@ class MetinBloku:
         self.kirli = True
         self.bozuldu()
 
+    def tasi(self, dx: float, dy: float) -> None:
+        self.x0 += dx
+        self.x1 += dx
+        self.y0 += self.dy + dy
+        self.dy = 0.0
+        self.tasindi = True
+        self.kirli = True
+        self.bozuldu()
+
+    def ayir(self, bas: int, son: int) -> "MetinBloku | None":
+        bas, son = max(0, min(bas, son)), min(len(self.metin), max(bas, son))
+        parca = self.metin[bas:son]
+        if not parca.strip():
+            return None
+
+        x, ust, _ = self.indeks_noktasi(bas)
+        stiller = list(self.stiller[bas:son])
+        depo = FontDeposu.al()
+        genislik = sum(
+            0.0 if ch == "\n" else depo.mu(st.aile, st.kalin, st.egik).text_length(ch, st.boy)
+            for ch, st in zip(parca, stiller)
+        )
+
+        yeni = MetinBloku(
+            x0=x, y0=ust, x1=x + genislik + 2.0, y1=ust + 1.0,
+            metin=parca, stiller=stiller,
+            satir_carpani=self.satir_carpani, hiza="sol",
+        )
+        yeni.kirli = True
+        yeni.tasindi = True
+        yeni.ilk_yukseklik = max(1.0, yeni.yukseklik)
+        self.sil(bas, son)
+        return yeni
+
 
 @dataclass
 class ResimNesnesi:
@@ -309,8 +344,17 @@ class Sayfa:
             return
         birikim = 0.0
         for b in sorted(self.bloklar, key=lambda b: (b.y0, b.x0)):
+            if b.tasindi:
+                b.dy = 0.0
+                continue
             b.dy = birikim
             birikim += b.buyume
+
+    def nesne_bul(self, x: float, y: float):
+        resim = self.resim_bul(x, y)
+        if resim is not None:
+            return resim
+        return self.blok_bul(x, y)
 
     def blok_bul(self, x: float, y: float) -> MetinBloku | None:
         adaylar = []
@@ -354,7 +398,8 @@ class Belge:
     def _goruntu(self) -> tuple:
         return tuple(
             (
-                tuple((b.metin, tuple(b.stiller), b.kirli) for b in s.bloklar),
+                tuple((b.metin, tuple(b.stiller), b.kirli, b.x0, b.x1, b.y0, b.dy, b.tasindi)
+                      for b in s.bloklar),
                 tuple((r.yol, r.x0, r.y0, r.x1, r.y1) for r in s.resimler),
             )
             for s in self.sayfalar
@@ -371,10 +416,10 @@ class Belge:
 
     def _yukle(self, g: tuple) -> None:
         for sayfa, (blok_v, resim_v) in zip(self.sayfalar, g):
-            for blok, (metin, stiller, kirli) in zip(sayfa.bloklar, blok_v):
-                blok.metin = metin
+            for blok, kayit in zip(sayfa.bloklar, blok_v):
+                (blok.metin, stiller, blok.kirli,
+                 blok.x0, blok.x1, blok.y0, blok.dy, blok.tasindi) = kayit
                 blok.stiller = list(stiller)
-                blok.kirli = kirli
                 blok.bozuldu()
             sayfa.resimler = [ResimNesnesi(*r) for r in resim_v]
             sayfa.kaymalari_hesapla(self.itme_acik)

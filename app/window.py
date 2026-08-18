@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QSizePolicy
 
 from . import pdfio, tema
 from .canvas import Tuval
+from .model import MetinBloku
 from .fonts import FontDeposu
 
 RESIM_SUZGECI = "Gorseller (*.png *.jpg *.jpeg *.bmp *.gif *.webp);;Tum dosyalar (*)"
@@ -111,6 +112,25 @@ class AnaPencere(QMainWindow):
         cubuk.addAction(self.eylem_kaydet)
         cubuk.addAction(farkli)
         cubuk.addSeparator()
+        self.eylem_tasi = QAction("Taşı", self)
+        self.eylem_tasi.setProperty("ikon_adi", "tasi")
+        self.eylem_tasi.setIcon(tema.simge("tasi", tema.Tema.koyu["text"]))
+        self.eylem_tasi.setCheckable(True)
+        self.eylem_tasi.setShortcut(QKeySequence("V"))
+        self.eylem_tasi.setToolTip(
+            "Taşı modu (V) — tıkladığın metin bloğunu veya resmi sürükle. "
+            "Ok tuşları ince ayar, Shift ile 1pt. Esc ile metin moduna dön. "
+            "Metin modundayken Alt basılı sürüklemek de taşır.")
+        self.eylem_tasi.triggered.connect(
+            lambda: self.tuval.mod_ayarla("tasi" if self.eylem_tasi.isChecked() else "metin"))
+        cubuk.addAction(self.eylem_tasi)
+
+        self.eylem_ayir = self._ikonlu_eylem(
+            "Seçimi Ayır", "ayir", "Ctrl+D", self._secimi_ayir,
+            "Seçili metni ayrı bir parçaya dönüştür (Ctrl+D) — sonra istediğin yere sürükle")
+        cubuk.addAction(self.eylem_ayir)
+        cubuk.addSeparator()
+
         cubuk.addAction(self._ikonlu_eylem("Geri Al", "geri", "Ctrl+Z", self.tuval.geri_al, "Geri al (Ctrl+Z)"))
         cubuk.addAction(self._ikonlu_eylem("Yinele", "ileri", "Ctrl+Y", self.tuval.yinele, "Yinele (Ctrl+Y)"))
         cubuk.addSeparator()
@@ -234,6 +254,13 @@ class AnaPencere(QMainWindow):
             golge.setColor(QColor(token["shadow"]))
         self._durumu_tazele()
 
+    def _secimi_ayir(self) -> None:
+        if self.tuval.secimi_ayir():
+            self._durum.showMessage(
+                "Metin ayrıldı — sürükleyerek taşı, ok tuşlarıyla ince ayar yap", 7000)
+        else:
+            self._durum.showMessage("Önce taşımak istediğin metni seç", 4000)
+
     def _tema_degistir(self) -> None:
         self._tema_uygula("acik" if self._tema == "koyu" else "koyu")
 
@@ -337,8 +364,22 @@ class AnaPencere(QMainWindow):
         aile = stil.aile if stil else "Georgia"
         boy = stil.boy if stil else 10.2
         sayfa = f"{self.tuval.sayfa_no + 1}/{len(belge.sayfalar)}" if belge else "-/-"
-        self._durum_kontekst.setText(f"{aile} · {boy:.1f}pt · Sayfa {sayfa}")
+        if self.tuval.mod == "tasi":
+            nesne = self.tuval.tasinan
+            if nesne is None:
+                secim = "Taşı modu · bir blok ya da resim seç"
+            elif isinstance(nesne, MetinBloku):
+                onizleme = " ".join(nesne.metin.split())[:34] or "boş blok"
+                secim = f"Taşı modu · metin: {onizleme}"
+            else:
+                secim = "Taşı modu · resim"
+            self._durum_kontekst.setText(f"{secim} · Sayfa {sayfa}")
+        else:
+            self._durum_kontekst.setText(f"{aile} · {boy:.1f}pt · Sayfa {sayfa}")
         self._durum_kontekst.setStyleSheet("")
+        self.eylem_tasi.blockSignals(True)
+        self.eylem_tasi.setChecked(self.tuval.mod == "tasi")
+        self.eylem_tasi.blockSignals(False)
         if belge:
             self.etiket_sayfa.setText(f" {self.tuval.sayfa_no + 1} / {len(belge.sayfalar)} ")
         self.etiket_zoom.setText(f" %{int(self.tuval.zoom * 100)} ")

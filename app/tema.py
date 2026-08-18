@@ -48,6 +48,8 @@ _SVG = {
     "kalin": '<path d="M7 4h6a4 4 0 0 1 0 8H7Zm0 8h7a4 4 0 0 1 0 8H7Z"/>',
     "egik": '<path d="m10 4-4 16M14 4h6M4 20h6"/>',
     "renk": '<path d="M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 0-4H12a2 2 0 0 1 0-4h4a5 5 0 0 0 0-10Z"/><path d="M7 9h.01M9 6h.01M15 7h.01M17 10h.01"/>',
+    "tasi": '<path d="M12 3v18M3 12h18"/><path d="m9 6 3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/>',
+    "ayir": '<path d="M4 5h7v14H4Z"/><path d="M15 9h5v10h-5Z"/><path d="M13 7h4M13 7l-2-2M13 7l-2 2"/>',
     "resim": '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/>',
     "onceki": '<path d="m14 6-6 6 6 6"/><path d="M8 12h12"/>',
     "sonraki": '<path d="m10 6 6 6-6 6"/><path d="M4 12h12"/>',

@@ -40,7 +40,8 @@ class Tuval(QWidget):
         self.capa = 0
         self.zorlanan_stil: Stil | None = None
 
-        self.secili_resim: ResimNesnesi | None = None
+        self.mod = "metin"
+        self.tasinan = None
         self._surukleme = None
         self._metin_secimi = False
         self._yazim_acik = False
@@ -52,10 +53,52 @@ class Tuval(QWidget):
         self._metin_anahtar = None
         self._resim_onbellek: dict[str, QPixmap] = {}
 
+        self._vurgu = None
         self._imlec_gorunur = True
         self._zamanlayici = QTimer(self)
         self._zamanlayici.timeout.connect(self._imlec_yanip_son)
         self._zamanlayici.start(530)
+
+    @property
+    def secili_resim(self):
+        return self.tasinan if isinstance(self.tasinan, ResimNesnesi) else None
+
+    @secili_resim.setter
+    def secili_resim(self, deger) -> None:
+        self.tasinan = deger
+
+    @property
+    def secili_blok(self):
+        return self.tasinan if isinstance(self.tasinan, MetinBloku) else None
+
+    def mod_ayarla(self, ad: str) -> None:
+        self.mod = "tasi" if ad == "tasi" else "metin"
+        if self.mod == "tasi":
+            self.aktif_blok = None
+            self.setCursor(Qt.CursorShape.OpenHandCursor)
+        else:
+            self.tasinan = None
+            self.setCursor(Qt.CursorShape.IBeamCursor)
+        self.update()
+        self.durum_degisti.emit()
+
+    def secimi_ayir(self) -> bool:
+        blok = self.aktif_blok
+        if blok is None or self.imlec == self.capa or not self.belge:
+            return False
+        bas, son = sorted((self.imlec, self.capa))
+        self.belge.isaretle()
+        yeni = blok.ayir(bas, son)
+        if yeni is None:
+            return False
+        self.sayfa.bloklar.append(yeni)
+        self.aktif_blok = None
+        self.imlec = self.capa = 0
+        self.tasinan = yeni
+        self.mod = "tasi"
+        self.setCursor(Qt.CursorShape.OpenHandCursor)
+        self._degisti()
+        return True
 
     def renkleri_ayarla(self, renkler: dict[str, str]) -> None:
         self.renkler = {**self.renkler, **renkler}
@@ -185,7 +228,8 @@ class Tuval(QWidget):
         s = self.sayfa
         if not s:
             return 0
-        return hash(tuple((b.metin, round(b.dy, 2), len(b.stiller)) for b in s.bloklar))
+        return hash(tuple((b.metin, round(b.x0, 2), round(b.x1, 2), round(b.y0, 2),
+                           round(b.dy, 2), len(b.stiller)) for b in s.bloklar))
 
     def _resim_pix(self, yol: str) -> QPixmap:
         pix = self._resim_onbellek.get(yol)
@@ -231,6 +275,26 @@ class Tuval(QWidget):
             boyaci.setBrush(Qt.BrushStyle.NoBrush)
             boyaci.drawRect(cerceve.adjusted(-2, -2, 2, 2))
 
+        secili = self.secili_blok
+        if secili is not None:
+            bx0, by0, bx1, by1 = secili.sinirlar()
+            cerceve = QRectF(self.p2e(bx0, by0), self.p2e(bx1, by1)).adjusted(-3, -3, 3, 3)
+            boyaci.setPen(QPen(self._renk("accent"), 1.5, Qt.PenStyle.DashLine))
+            boyaci.setBrush(Qt.BrushStyle.NoBrush)
+            boyaci.drawRect(cerceve)
+            boyaci.setPen(QPen(self._renk("tutamac_kenar"), 1))
+            boyaci.setBrush(QColor("#ffffff"))
+            for nokta in (cerceve.topLeft(), cerceve.topRight(),
+                          cerceve.bottomLeft(), cerceve.bottomRight()):
+                boyaci.drawRect(QRectF(nokta.x() - TUTAMAC / 2, nokta.y() - TUTAMAC / 2,
+                                       TUTAMAC, TUTAMAC))
+
+        if self.mod == "tasi" and self._vurgu is not None and self._vurgu is not self.tasinan:
+            vx0, vy0, vx1, vy1 = self._vurgu.sinirlar()
+            boyaci.setPen(QPen(self._renk("blok_cerceve"), 1))
+            boyaci.setBrush(Qt.BrushStyle.NoBrush)
+            boyaci.drawRect(QRectF(self.p2e(vx0, vy0), self.p2e(vx1, vy1)).adjusted(-3, -3, 3, 3))
+
         self._secimi_ciz(boyaci)
 
         if self.aktif_blok is not None and self._imlec_gorunur and self.imlec == self.capa:
@@ -272,6 +336,8 @@ class Tuval(QWidget):
             return
         self.setFocus()
         px, py = self.e2p(olay.position())
+        alt = bool(olay.modifiers() & Qt.KeyboardModifier.AltModifier)
+        tasi_modu = self.mod == "tasi" or alt
 
         if self.secili_resim is not None:
             for i, tut in enumerate(self._tutamaclar(self.secili_resim)):
@@ -291,7 +357,19 @@ class Tuval(QWidget):
             self.durum_degisti.emit()
             return
 
-        self.secili_resim = None
+        if tasi_modu:
+            hedef = self.sayfa.blok_bul(px, py)
+            self.aktif_blok = None
+            self.tasinan = hedef
+            if hedef is not None:
+                self.belge.isaretle()
+                self._surukleme = ("tasi", 0, (px, py), hedef.sinirlar())
+                self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            self.update()
+            self.durum_degisti.emit()
+            return
+
+        self.tasinan = None
         blok = self.sayfa.blok_bul(px, py) or self.sayfa.en_yakin_blok(px, py)
         self.aktif_blok = blok
         if blok is not None:
@@ -312,11 +390,16 @@ class Tuval(QWidget):
         if self._surukleme is not None:
             tur, indeks, (bx, by), (ix0, iy0, ix1, iy1) = self._surukleme
             dx, dy = px - bx, py - by
-            r = self.secili_resim
+            r = self.tasinan
             if r is None:
                 return
             if tur == "tasi":
-                r.x0, r.y0, r.x1, r.y1 = ix0 + dx, iy0 + dy, ix1 + dx, iy1 + dy
+                if isinstance(r, MetinBloku):
+                    simdi = r.sinirlar()
+                    r.tasi((ix0 + dx) - simdi[0], (iy0 + dy) - simdi[1])
+                    self.metni_tazele()
+                else:
+                    r.x0, r.y0, r.x1, r.y1 = ix0 + dx, iy0 + dy, ix1 + dx, iy1 + dy
             else:
                 nx0, ny0, nx1, ny1 = ix0, iy0, ix1, iy1
                 if indeks in (0, 2):
@@ -339,6 +422,15 @@ class Tuval(QWidget):
             self.update()
             return
 
+        if self.mod == "tasi":
+            yeni_vurgu = self.sayfa.nesne_bul(px, py) if self.sayfa else None
+            if yeni_vurgu is not self._vurgu:
+                self._vurgu = yeni_vurgu
+                self.update()
+            self.setCursor(Qt.CursorShape.OpenHandCursor if yeni_vurgu is not None
+                           else Qt.CursorShape.ArrowCursor)
+            return
+        self._vurgu = None
         if self.sayfa and self.sayfa.resim_bul(px, py) is not None:
             self.setCursor(Qt.CursorShape.OpenHandCursor)
         else:
@@ -348,6 +440,10 @@ class Tuval(QWidget):
         if self._surukleme is not None:
             self._surukleme = None
             self.setCursor(Qt.CursorShape.OpenHandCursor)
+            if self.sayfa and self.belge:
+                self.sayfa.kaymalari_hesapla(self.belge.itme_acik)
+            self.metni_tazele()
+            self.durum_degisti.emit()
             self.belge_degisti.emit()
         self._metin_secimi = False
 
@@ -383,12 +479,20 @@ class Tuval(QWidget):
         ctrl = bool(mod & Qt.KeyboardModifier.ControlModifier)
         shift = bool(mod & Qt.KeyboardModifier.ShiftModifier)
 
-        if self.secili_resim is not None and self.aktif_blok is None:
+        if tus == Qt.Key.Key_Escape:
+            self.mod_ayarla("metin")
+            return
+
+        if self.tasinan is not None and self.aktif_blok is None:
             if tus in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
                 self.belge.isaretle()
-                self.sayfa.resimler.remove(self.secili_resim)
-                self.secili_resim = None
-                self.update()
+                if isinstance(self.tasinan, MetinBloku):
+                    self.tasinan.sil(0, len(self.tasinan.metin))
+                else:
+                    self.sayfa.resimler.remove(self.tasinan)
+                self.tasinan = None
+                self.metni_tazele()
+                self.durum_degisti.emit()
                 self.belge_degisti.emit()
                 return
             adim = 1.0 if shift else 5.0
@@ -396,8 +500,12 @@ class Tuval(QWidget):
                    Qt.Key.Key_Up: (0, -adim), Qt.Key.Key_Down: (0, adim)}.get(tus)
             if yon:
                 self.belge.isaretle()
-                self.secili_resim.tasi(*yon)
-                self.update()
+                self.tasinan.tasi(*yon)
+                if isinstance(self.tasinan, MetinBloku):
+                    self.metni_tazele()
+                else:
+                    self.update()
+                self.durum_degisti.emit()
                 self.belge_degisti.emit()
                 return
 
@@ -577,13 +685,13 @@ class Tuval(QWidget):
     def geri_al(self) -> None:
         if self.belge and self.belge.geri_al():
             self.aktif_blok = None
-            self.secili_resim = None
+            self.tasinan = None
             self.metni_tazele()
             self.durum_degisti.emit()
 
     def yinele(self) -> None:
         if self.belge and self.belge.yinele():
             self.aktif_blok = None
-            self.secili_resim = None
+            self.tasinan = None
             self.metni_tazele()
             self.durum_degisti.emit()
