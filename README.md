@@ -1,6 +1,6 @@
 # pdf-edit
 
-Windows için küçük bir PDF düzenleyici. Bir PDF açıyorsun, metnin içine tıklayıp yazıyorsun, siliyorsun; eklediğin harfler o satırın yazı tipiyle devam ediyor. Sayfaya resim atıp fareyle istediğin yere sürükleyebiliyorsun. Bulut yok, hesap yok, her şey bilgisayarda kalıyor.
+Windows için küçük bir PDF düzenleyici. Bir PDF açıyorsun, metnin içine tıklayıp yazıyorsun, siliyorsun, yerlerini değiştiriyorsun ! Kişisel küçük kullanımlar için ...
 
 Kaydettiğinde kaynak dosyaya dokunulmaz; yanına `-duzenlenmis.pdf` ekiyle yeni dosya çıkar.
 
