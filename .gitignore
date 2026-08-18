@@ -1,0 +1,10 @@
+build/
+dist/
+__pycache__/
+*.pyc
+*.spec
+docs/
+ornek/
+fonts/times*.ttf
+fonts/arial*.ttf
+fonts/cour*.ttf
