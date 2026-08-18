@@ -61,50 +61,50 @@ _SVG = {
 def qss(ad: str) -> str:
     t = Tema.acik if ad == "acik" else Tema.koyu
     return f"""
-QMainWindow {  background: {t['bg-app']}; }
-QWidget {  color: {t['text']}; font-family: 'Segoe UI Variable Text', 'Segoe UI', sans-serif; font-size: 13px; }
-QToolBar {  background: {t['bg-panel']}; border: 0; border-bottom: 1px solid {t['border']}; spacing: 2px; padding: 4px 8px; }
-QToolBar::separator {  background: {t['border']}; width: 1px; margin: 6px 8px; }
-QToolBar#baslik_cubugu {  padding: 6px 12px; }
-QToolBar#baslik_cubugu QLabel {  background: transparent; }
-QToolBar QLabel {  background: transparent; color: {t['text-muted']}; padding: 0 2px; }
-QLabel#uygulama_adi {  color: {t['text']}; font-size: 14px; font-weight: 600; padding-right: 8px; }
-QLabel#dosya_adi {  color: {t['text-muted']}; }
-QToolButton {  background: transparent; border: 0; border-radius: 6px; color: {t['text']}; min-height: 28px; min-width: 28px; padding: 0 6px; }
-QToolButton:hover {  background: {t['accent-soft']}; }
-QToolButton:pressed {  background: {t['accent']}; color: #ffffff; }
-QToolButton:checked {  background: {t['accent-soft']}; border: 1px solid {t['accent']}; }
-QToolButton:disabled {  color: {t['text-muted']}; }
-QComboBox, QDoubleSpinBox {  background: {t['bg-app']}; border: 1px solid {t['border']}; border-radius: 6px; color: {t['text']}; min-height: 26px; padding: 0 8px; selection-background-color: {t['accent']}; }
-QComboBox:hover, QDoubleSpinBox:hover {  border-color: {t['text-muted']}; }
-QComboBox:focus, QDoubleSpinBox:focus {  border: 1px solid {t['accent']}; }
-QComboBox::drop-down {  border: 0; width: 20px; }
-QComboBox::down-arrow {  width: 8px; height: 8px; }
-QComboBox QAbstractItemView {  background: {t['bg-panel']}; color: {t['text']}; border: 1px solid {t['border']}; border-radius: 6px; padding: 4px; outline: 0; selection-background-color: {t['accent-soft']}; selection-color: {t['text']}; }
-QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {  width: 14px; border: 0; background: transparent; }
-QScrollArea {  background: {t['bg-canvas']}; border: 0; }
-QScrollArea > QWidget > QWidget {  background: {t['bg-canvas']}; }
-QScrollBar:vertical {  background: transparent; width: 10px; margin: 2px; }
-QScrollBar:horizontal {  background: transparent; height: 10px; margin: 2px; }
-QScrollBar::handle {  background: {t['text-muted']}; border-radius: 3px; min-height: 28px; min-width: 28px; }
-QScrollBar::handle:hover {  background: {t['accent']}; }
-QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page {  background: transparent; border: 0; height: 0; width: 0; }
-QStatusBar {  background: {t['bg-panel']}; border-top: 1px solid {t['border']}; color: {t['text-muted']}; min-height: 24px; font-size: 12px; }
-QStatusBar QLabel {  background: transparent; color: {t['text-muted']}; padding: 0 6px; }
-QStatusBar::item {  border: 0; }
-QStatusBar QToolBar {  background: transparent; border: 0; padding: 0 4px; }
-QStatusBar QToolButton {  min-height: 22px; min-width: 22px; padding: 0 3px; }
-QMenu {  background: {t['bg-panel']}; color: {t['text']}; border: 1px solid {t['border']}; border-radius: 6px; padding: 4px; }
-QMenu::item {  padding: 5px 14px; border-radius: 4px; }
-QMenu::item:selected {  background: {t['accent-soft']}; }
-QCheckBox {  color: {t['text-muted']}; spacing: 6px; background: transparent; }
-QCheckBox::indicator {  width: 14px; height: 14px; border: 1px solid {t['border']}; border-radius: 4px; background: {t['bg-app']}; }
-QCheckBox::indicator:checked {  background: {t['accent']}; border-color: {t['accent']}; }
-QToolTip {  background: {t['bg-panel']}; color: {t['text']}; border: 1px solid {t['border']}; padding: 4px 8px; }
-QMessageBox, QFileDialog, QColorDialog {  background: {t['bg-panel']}; }
-QPushButton {  background: {t['bg-app']}; border: 1px solid {t['border']}; border-radius: 6px; padding: 5px 14px; min-height: 24px; }
-QPushButton:hover {  border-color: {t['accent']}; }
-QPushButton:default {  background: {t['accent']}; color: #ffffff; border-color: {t['accent']}; }
+QMainWindow {{ background: {t['bg-app']}; }}
+QWidget {{ color: {t['text']}; font-family: 'Segoe UI Variable Text', 'Segoe UI', sans-serif; font-size: 13px; }}
+QToolBar {{ background: {t['bg-panel']}; border: 0; border-bottom: 1px solid {t['border']}; spacing: 2px; padding: 4px 8px; }}
+QToolBar::separator {{ background: {t['border']}; width: 1px; margin: 6px 8px; }}
+QToolBar#baslik_cubugu {{ padding: 6px 12px; }}
+QToolBar#baslik_cubugu QLabel {{ background: transparent; }}
+QToolBar QLabel {{ background: transparent; color: {t['text-muted']}; padding: 0 2px; }}
+QLabel#uygulama_adi {{ color: {t['text']}; font-size: 14px; font-weight: 600; padding-right: 8px; }}
+QLabel#dosya_adi {{ color: {t['text-muted']}; }}
+QToolButton {{ background: transparent; border: 0; border-radius: 6px; color: {t['text']}; min-height: 28px; min-width: 28px; padding: 0 6px; }}
+QToolButton:hover {{ background: {t['accent-soft']}; }}
+QToolButton:pressed {{ background: {t['accent']}; color: #ffffff; }}
+QToolButton:checked {{ background: {t['accent-soft']}; border: 1px solid {t['accent']}; }}
+QToolButton:disabled {{ color: {t['text-muted']}; }}
+QComboBox, QDoubleSpinBox {{ background: {t['bg-app']}; border: 1px solid {t['border']}; border-radius: 6px; color: {t['text']}; min-height: 26px; padding: 0 8px; selection-background-color: {t['accent']}; }}
+QComboBox:hover, QDoubleSpinBox:hover {{ border-color: {t['text-muted']}; }}
+QComboBox:focus, QDoubleSpinBox:focus {{ border: 1px solid {t['accent']}; }}
+QComboBox::drop-down {{ border: 0; width: 20px; }}
+QComboBox::down-arrow {{ width: 8px; height: 8px; }}
+QComboBox QAbstractItemView {{ background: {t['bg-panel']}; color: {t['text']}; border: 1px solid {t['border']}; border-radius: 6px; padding: 4px; outline: 0; selection-background-color: {t['accent-soft']}; selection-color: {t['text']}; }}
+QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {{ width: 14px; border: 0; background: transparent; }}
+QScrollArea {{ background: {t['bg-canvas']}; border: 0; }}
+QScrollArea > QWidget > QWidget {{ background: {t['bg-canvas']}; }}
+QScrollBar:vertical {{ background: transparent; width: 10px; margin: 2px; }}
+QScrollBar:horizontal {{ background: transparent; height: 10px; margin: 2px; }}
+QScrollBar::handle {{ background: {t['text-muted']}; border-radius: 3px; min-height: 28px; min-width: 28px; }}
+QScrollBar::handle:hover {{ background: {t['accent']}; }}
+QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page {{ background: transparent; border: 0; height: 0; width: 0; }}
+QStatusBar {{ background: {t['bg-panel']}; border-top: 1px solid {t['border']}; color: {t['text-muted']}; min-height: 24px; font-size: 12px; }}
+QStatusBar QLabel {{ background: transparent; color: {t['text-muted']}; padding: 0 6px; }}
+QStatusBar::item {{ border: 0; }}
+QStatusBar QToolBar {{ background: transparent; border: 0; padding: 0 4px; }}
+QStatusBar QToolButton {{ min-height: 22px; min-width: 22px; padding: 0 3px; }}
+QMenu {{ background: {t['bg-panel']}; color: {t['text']}; border: 1px solid {t['border']}; border-radius: 6px; padding: 4px; }}
+QMenu::item {{ padding: 5px 14px; border-radius: 4px; }}
+QMenu::item:selected {{ background: {t['accent-soft']}; }}
+QCheckBox {{ color: {t['text-muted']}; spacing: 6px; background: transparent; }}
+QCheckBox::indicator {{ width: 14px; height: 14px; border: 1px solid {t['border']}; border-radius: 4px; background: {t['bg-app']}; }}
+QCheckBox::indicator:checked {{ background: {t['accent']}; border-color: {t['accent']}; }}
+QToolTip {{ background: {t['bg-panel']}; color: {t['text']}; border: 1px solid {t['border']}; padding: 4px 8px; }}
+QMessageBox, QFileDialog, QColorDialog {{ background: {t['bg-panel']}; }}
+QPushButton {{ background: {t['bg-app']}; border: 1px solid {t['border']}; border-radius: 6px; padding: 5px 14px; min-height: 24px; }}
+QPushButton:hover {{ border-color: {t['accent']}; }}
+QPushButton:default {{ background: {t['accent']}; color: #ffffff; border-color: {t['accent']}; }}
 """
 
 
