@@ -25,9 +25,6 @@ Taşınan bir blok artık kendi yerinde sabitlenir, alttaki bloklar büyüdüğ�
 
 Ctrl+O aç, Ctrl+S kaydet, Ctrl+Z geri al, Ctrl+M resim ekle, Ctrl+D seçimi ayır, V taşı modu, Esc metin modu, Ctrl+B kalın, Ctrl+I eğik. Sayfa geçişi PgUp / PgDown, yakınlaştırma Ctrl ile fare tekerleği. Resmi köşesinden çekerken Shift basılıysa oran korunur, Delete seçili şeyi siler.
 
-## Yazı tipleri
-
-Varsayılan dört aile: Times New Roman, Arial, Courier New ve JetBrains Mono. İlk üçü Microsoft fontu olduğu için depoda yok; program onları Windows'un kendi font klasöründen okur, exe derlerken de oradan kopyalar. Açtığın PDF başka bir fontla yazılmışsa (Georgia, Calibri gibi) ve o font Windows'ta kuruluysa program onu bulup kullanır; listeye de ekler. Yeni font eklemek için `fonts/` klasörüne .ttf dosyalarını at ve `app/fonts.py` içindeki `GOMULU` sözlüğüne bir satır yaz.
 
 ## Sınırlar
 
